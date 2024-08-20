@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css' rel='stylesheet' />
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+    <title>Rendering Polygons using MapLibre</title>
+</head>
+
+<body>
+    <div id="map">
+    </div>
+
+    <script>
+        const startTime = performance.now();
+
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://api.maptiler.com/maps/streets/style.json?key=Qh9SwIqHUsRyCEQQYBcs',
+            center: [0, 0],
+            zoom: 2
+        });
+
+        fetch("./citylots.json")
+            .then((response) => response.json())
+            .then((geoJSONData) => {
+                map.addSource("geojson-data", {
+                    type: "geojson",
+                    data: geoJSONData,
+                });
+
+                map.addLayer({
+                    id: "geojson-layer",
+                    type: "fill",
+                    source: "geojson-data",
+                    paint: {
+                        "fill-color": "#088",
+                        "fill-opacity": 0.8,
+                    },
+                });
+                const bounds = new maplibregl.LngLatBounds([
+                    geoJSONData.features[0].geometry.coordinates[0][0],
+                    geoJSONData.features[0].geometry.coordinates[0][1],
+                ]);
+                map.fitBounds(bounds, { maxZoom: 10 });
+
+                const endTime = performance.now();
+                console.log('Time to render MapLibre (seconds):', (endTime - startTime) / 1000);
+            });
+
+    </script>
+</body>
+
+</html>
