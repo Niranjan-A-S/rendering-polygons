@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <title>Rendering Polygons</title>
+</head>
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+    #map {
+        width: 100vw;
+        height: 100vh;
+    }
+</style>
+
+<body>
+    <div id="map"></div>
+    <script>
+        const startTime = performance.now();
+        const map = L.map('map').setView([0, 0], 2);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        (async () => {
+            const response = await fetch('citylots.json');
+            const geoJSONData = await response.json();
+
+            const geoJSON = L.geoJSON(geoJSONData).addTo(map);
+            map.fitBounds(geoJSON.getBounds());
+
+            let endTime = performance.now();
+            let elapsedTime = endTime - startTime;
+            console.log('Time to render GeoJSON (seconds):', elapsedTime / 1000);
+        })()
+    </script>
+</body>
+
+</html>
